@@ -1,65 +1,53 @@
+// app/Http/Controllers/TaskController.php
 <?php
 
 namespace App\Http\Controllers;
 
-use App\Models\Task;
 use Illuminate\Http\Request;
+use App\Models\Project;
+use App\Models\Task;
+use Illuminate\Support\Facades\Auth;
 
 class TaskController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Сохраняет новую задачу для заданного проекта.
      */
-    public function index()
+    public function store(Request $request, Project $project)
     {
-        //
+        // 1. Проверка прав (БЕЗОПАСНОСТЬ)
+        if ($project->user_id !== Auth::id()) {
+            abort(403);
+        }
+
+        // 2. Валидация
+        $validated = $request->validate([
+            'body' => 'required|string|max:255',
+        ]);
+
+        // 3. Создаем задачу, привязанную к проекту
+        $project->tasks()->create($validated);
+
+        // 4. Возвращаемся на страницу проекта
+        return back();
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Обновляет статус задачи (выполнено/не выполнено).
      */
-    public function create()
+    public function update(Project $project, Task $task)
     {
-        //
-    }
+        // 1. Проверка прав (БЕЗОПАСНОСТЬ)
+        if ($project->user_id !== Auth::id()) {
+            abort(403);
+        }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
+        // 2. Меняем статус на противоположный
+        $task->update([
+            'completed' => !$task->completed,
+        ]);
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Task $task)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Task $task)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Task $task)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Task $task)
-    {
-        //
+        // 3. Возвращаемся
+        return back();
     }
 }
