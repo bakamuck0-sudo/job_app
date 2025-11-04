@@ -54,7 +54,10 @@ class ProjectController extends Controller
      */
     public function edit(Project $project)
     {
-        //
+        if ($project->user_id !== Auth::id()) {
+            abort(403);
+        }
+        return view('projects.edit', compact('project'));
     }
 
     /**
@@ -62,7 +65,15 @@ class ProjectController extends Controller
      */
     public function update(Request $request, Project $project)
     {
-        //
+        if ($project->user_id !== Auth::id()) {
+            abort(403);
+        }
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+        ]);
+        $project->update($request->only('title', 'description'));
+        return redirect()->route('projects.show', $project)->with('success', 'Project updated successfully.');
     }
 
     /**
@@ -70,6 +81,10 @@ class ProjectController extends Controller
      */
     public function destroy(Project $project)
     {
-        //
+        if ($project->user_id !== Auth::id()) {
+            abort(403);
+        }
+        $project->delete();
+        return redirect()->route('projects.index')->with('success', 'Project deleted successfully.');
     }
 }

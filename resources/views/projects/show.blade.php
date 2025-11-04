@@ -11,12 +11,27 @@
 <div class="p-6 text-gray-900">
 
 <div class="mb-8 border-b pb-4">
+<div class="flex items-center space-x-4 mt-4 mb-6">
+
+    <a href="{{ route('projects.edit', $project) }}" class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700">
+        Редактировать
+    </a>
+
+    <form method="POST" action="{{ route('projects.destroy', $project) }}">
+        @csrf
+        @method('DELETE')
+        <button type="submit" class="inline-flex items-center px-4 py-2 bg-red-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-red-700" onclick="return confirm('Ты уверен, что хочешь удалить этот проект? Это удалит и все его задачи.')">
+            Удалить
+        </button>
+    </form>
+</div>
 <p class="text-lg font-medium text-gray-700">{{ $project->description }}</p>
 </div>
 
 <h3 class="text-xl font-bold mb-4">Список Задач</h3>
 
 <form method="POST" action="{{ route('tasks.store', $project) }}" class="mb-6 flex">
+
 @csrf
 <input name="body" class="flex-grow border-gray-300 rounded-l-md shadow-sm" type="text" placeholder="Новая задача..." required />
 
